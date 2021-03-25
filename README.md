@@ -1,5 +1,5 @@
 # movebox
-Docker with inotify watched inbox, which transfered completely written files to outbox.
+Docker with inotify watched inbox, which transfered completely written files to outbox
 
 ## docker-compose.yml
 
