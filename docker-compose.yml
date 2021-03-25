@@ -1,0 +1,46 @@
+version: "3.7"
+
+services:
+  movebox:
+    build: .
+    #image: martinpichlo/movebox
+    restart: unless-stopped
+    environment:
+      INBOX: "/mnt/inbox"
+      OUTBOX: "/mnt/outbox"
+    volumes:
+      - ./inbox:/mnt/inbox
+      - ../paperless-ng/consume:/mnt/outbox
+
+  samba:
+    image: dperson/samba
+    environment:
+      TZ: 'Europe/Berlin'
+    ports:
+      - "137:137/udp"
+      - "138:138/udp"
+      - "139:139/tcp"
+      - "445:445/tcp"
+    environment:
+      WORKGROUP: "WORKGROUP"
+      PERMISSIONS: "true"
+      USERID: "1000"
+      GROUIP: "100"
+      SHARE1: "movebox;/mnt/movebox;yes;no;no;user"
+      SHARE2: "paperless;/mnt/consume;yes;no;no;user"
+      RECYCLE: "false"
+      USER: "user;pass"
+      GLOBAL1: "ntlm auth = ntlmv1-permitted"
+      GLOBAL2: "server min protocol = NT1"
+      #GLOBAL3: "netbios name = docker"
+      #GLOBAL4: "log level = 3"
+    read_only: true
+    tmpfs:
+      - /tmp
+    restart: unless-stopped
+    stdin_open: true
+    tty: true
+    volumes:
+      - ./inbox:/mnt/movebox:z
+      - ../paperless-ng/consume:/mnt/consume:z
+
