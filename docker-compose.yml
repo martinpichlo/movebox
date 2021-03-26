@@ -2,8 +2,8 @@ version: "3.7"
 
 services:
   movebox:
-    #build: .
-    image: martinpichlo/movebox
+    build: .
+    #image: martinpichlo/movebox
     restart: unless-stopped
     environment:
       INBOX: "/mnt/inbox"

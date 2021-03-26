@@ -7,13 +7,16 @@ outbox="$OUTBOX"
 inotifywait -mrq -e create --format %w%f $inbox | while read FILE
 do
     filename=$(basename $FILE)
+    if [ "$filename" = "tmp.txt" ]; then
+        break
+    fi
     echo "Found $filename in inbox"
     while [ true ] ; do
         filesize=$(ls -ld $FILE)
         if [ "$filesize" = "$filesize_old" ]; then
             break
         fi
-        sleep 1
+        sleep 5 #some scaners need some time
         filesize_old="$filesize"
     done
     
