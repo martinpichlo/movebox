@@ -1,5 +1,9 @@
 #!/bin/sh
 
+#test outside with:
+#export INBOX=/home/martin/movebox/inbox
+#export OUTBOX=/home/martin/movebox/outbox
+
 #import enviroment variables
 INBOX="$INBOX"
 OUTBOX="$OUTBOX"
