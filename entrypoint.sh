@@ -12,13 +12,13 @@ watch_folder () {
     
     inotifywait -mrq -e create -e moved_to --format %w%f $INBOX | while read FILE
     do
-        if wait_for_file "$FILE"; then
-             move_and_rename "$FILE" "$OUTBOX"
+        if is_file_written "$FILE"; then
+             move_and_rename "$FILE"
         fi
     done
 }
 
-wait_for_file () {
+is_file_written () {
 
     FILE="$1"
     FILENAME=$(basename $FILE)
