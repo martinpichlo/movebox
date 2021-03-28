@@ -1,67 +1,85 @@
 #!/bin/sh
 
-#test outside with:
-#export INBOX=/home/martin/movebox/inbox
-#export OUTBOX=/home/martin/movebox/outbox
+inbox="${1%/}"
+outbox="${2%/}"
 
-#import enviroment variables
-INBOX="$INBOX"
-OUTBOX="$OUTBOX"
+main() {
+    if ! check_parameter; then
+        return 1 #false
+    fi
+    read_folder
+    watch_folder
+}
+
+check_parameter () {
+    if ! [ -d "$inbox" ]; then
+        echo "Path $inbox to inbox is not existing"
+        return 1 #false
+    fi
+
+    if ! [ -d "$outbox" ]; then
+        echo "Path $outbox to outbox is not existing"
+        return 1 #false
+    fi
+    return 0 #true
+}
+
+read_folder () {
+    find "$inbox" -maxdepth 1 -mindepth 1 | while read file
+    do
+        if is_file_written "$file"; then
+             move_and_rename "$file"
+        fi
+    done
+}
 
 watch_folder () {
-    
-    inotifywait -mrq -e create -e moved_to --format %w%f $INBOX | while read FILE
+    inotifywait -mrq -e create -e moved_to --format %w%f $inbox | while read file
     do
-        if is_file_written "$FILE"; then
-             move_and_rename "$FILE"
+        if is_file_written "$file"; then
+             move_and_rename "$file"
         fi
     done
 }
 
 is_file_written () {
+    file="$1"
+    filename=$(basename $file)
 
-    FILE="$1"
-    FILENAME=$(basename $FILE)
-
-    if [ "$FILENAME" = "tmp.txt" ]; then
-        echo "Ignored $FILENAME in inbox"
+    if [ "$filename" = "tmp.txt" ]; then
+        echo "Ignored $filename in inbox"
         return 1 #false
     fi
 
-    echo "Found $FILENAME in inbox"
-    FILESIZE_OLD=-1
-    while [ true ] ; do
-        FILESIZE=$(stat -c %s "$FILE")
-        if [ "$FILESIZE" = "$FILESIZE_OLD" ]; then
+    echo "Found $filename in inbox"
+    filesize_old=-1
+    while true; do
+        filesize=$(stat -c %s "$file")
+        if [ "$filesize" = "$filesize_old" ]; then
             break
         fi
         sleep 5 #some scaners needs more than 1 sec
-        FILESIZE_OLD="$FILESIZE"
+        filesize_old="$filesize"
     done
     return 0 #true
-
 }
 
 move_and_rename () {
-
-    FILE="$1"
-    FILENAME=$(basename $FILE)
-    NAME=${FILENAMEe%.*}
-    SUFFIX=${FILENAME##*.}
-
-    
-    while [ true ] ; do
-        DATETIME="$(date +%Y-%m-%d_%H-%M-%S)"
-        FILENAME_NEW="SCN_$DATETIME.$SUFFIX"
-        FILE_NEW="$OUTBOX/$FILENAME_NEW"
-        if [ ! -f $FILE_NEW ]; then
+    file="$1"
+    filename=$(basename $file)
+    name=${filenamee%.*}
+    suffix=${filename##*.}
+   
+    while true; do
+        datetime="$(date +%Y%m%d_%H%M%S)"
+        filename_new="SCN_$datetime.$suffix"
+        file_new="$outbox/$filename_new"
+        if [ ! -f $file_new ]; then
             break
         fi
     done
-    echo "Moved to $FILENAME_NEW in outbox"
-    mv $FILE $FILE_NEW
-
+    echo "Moved to $filename_new in outbox"
+    mv $file $file_new
 }
 
-watch_folder
-
+main

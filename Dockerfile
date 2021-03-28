@@ -7,3 +7,4 @@ RUN apk add --update inotify-tools && \
     cat > /etc/motd
 
 ENTRYPOINT ["entrypoint.sh"]
+CMD ["/mnt/inbox", "/mnt/outbox"]
