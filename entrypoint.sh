@@ -58,7 +58,7 @@ is_file_written () {
         if [ "$filesize" = "$filesize_old" ]; then
             break
         fi
-        sleep 5 #some scaners needs more than 1 sec
+        sleep 10 #some scaners needs more than 1 sec
         filesize_old="$filesize"
     done
     return 0 #true
